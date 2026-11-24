@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "com.pcfprio.suite.socialsharing.umeng.wechat"
+    namespace = "com.jashanyng.suite.socialsharing.umeng.wechat"
     compileSdk = 37
 
     defaultConfig {

@@ -1,63 +1,66 @@
-# Compiled class file
+# JVM 与 Kotlin 编译产物及崩溃快照。
 *.class
-
-# BlueJ files
-*.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
 *.jar
-*.war
-*.nar
-*.ear
-*.zip
-*.tar.gz
-*.rar
-
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
 *.hprof
 
-# HiAndroid generated files
-# Gradle 与 Kotlin 构建缓存、所有模块的 build 目录。
+# Gradle、Kotlin 与各子模块构建输出。
 .gradle/
 .kotlin/
 build/
 out/
 **/bin/
 
-# Android 本地环境与原生构建输出。
+# Android 本地环境、原生构建输出与安装包产物。
 local.properties
 .externalNativeBuild/
 .cxx/
 captures/
+*.apk
+*.aab
+*.ap_
 
-# Android Studio、VS Code 与 IntelliJ IDEA 本地文件。
+# IDE 配置与编辑器交换缓存。
 .idea/
 .vscode/
 *.iml
+*.swp
+*.swo
+*.swn
+*~
+#*#
+.#*
 
-# macOS、本地辅助工具与日志文件。
+# macOS、Windows 与日志/临时文件。
 .DS_Store
 ._*
+Thumbs.db
 *.log
-/.codegraph/
-/.claude/worktrees/
-/.claude/settings.local.json
 temp/
 
-# 本地环境配置、签名文件和私钥文件。
+# 代码图谱与智能体运行态目录。
+/.codegraph/
+/.claude/
+/.codex/
+/.gemini/
+/.scratch/
+
+# 本地环境配置、签名属性、签名文件与私钥文件。
 **/.env
 **/.env.*
 !**/.env.example
 !**/.env.*.example
+keystore.properties
+signing.properties
+key.properties
+*.keystore.properties
+*.signing.properties
 *.jks
 *.keystore
 *.p12
 *.pem
+*.key
 secring.gpg
 
 # Gradle Wrapper JAR 是可复现构建的必要文件，必须提交。

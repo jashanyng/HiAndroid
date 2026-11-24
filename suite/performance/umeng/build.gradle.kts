@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "com.pcfprio.suite.performance.umeng"
+    namespace = "com.jashanyng.suite.performance.umeng"
     compileSdk = 37
 
     defaultConfig {

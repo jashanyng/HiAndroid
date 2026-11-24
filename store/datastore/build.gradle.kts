@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "com.pcfprio.store.datastore"
+    namespace = "com.jashanyng.store.datastore"
     compileSdk = 37
 
     defaultConfig {

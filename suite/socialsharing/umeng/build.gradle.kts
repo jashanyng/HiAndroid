@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "com.pcfprio.suite.socialsharing.umeng"
+    namespace = "com.jashanyng.suite.socialsharing.umeng"
     compileSdk = 37
 
     defaultConfig {

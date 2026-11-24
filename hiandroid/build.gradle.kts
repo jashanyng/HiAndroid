@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "com.pcfprio.hiandroid"
+    namespace = "com.jashanyng.hiandroid"
     compileSdk = 37
 
     defaultConfig {

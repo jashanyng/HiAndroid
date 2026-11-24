@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.pcfprio.suite.media3"
+    namespace = "com.jashanyng.suite.media3"
     compileSdk = 37
     defaultConfig {
         minSdk = 30

@@ -70,7 +70,7 @@ subprojects {
         .trim(':')
         .replace(Regex("[^A-Za-z0-9_]"), "_")
         .ifBlank { "root" }
-    val moduleMetadataPackageName = "com.pcfprio.buildmetadata.module_$moduleIdentifier"
+    val moduleMetadataPackageName = "com.jashanyng.buildmetadata.module_$moduleIdentifier"
     val generatedModuleMetadataDirectory = layout.buildDirectory.dir(
         "generated/source/module-metadata/kotlin",
     )
@@ -121,10 +121,10 @@ data class MavenModuleMetadata(
     val description: String,
 )
 
-val hiAndroidGroupId = "com.pcfprio"
+val hiAndroidGroupId = "com.jashanyng"
 val hiAndroidVersion = "2.0.0"
 val hiAndroidRepositoryUrl =
-    "https://github.com/pcfprio/HiAndroid"
+    "https://github.com/jashanyng/HiAndroid"
 
 /**
  * Maven 发布模块白名单。
@@ -271,7 +271,7 @@ subprojects {
         hiAndroidPublicationModules[path] ?: return@subprojects
 
     // 嵌套 model/core 与根 core 的叶子名称相同，需要使用唯一的本地组件 group。
-    // Maven 发布仍由 coordinates() 固定为 com.pcfprio:github-model-core。
+    // Maven 发布仍由 coordinates() 固定为 com.jashanyng:github-model-core。
     val compositeProjectGroup =
         if (path == ":github:model:core") {
             "$hiAndroidGroupId.github.model"
@@ -495,20 +495,21 @@ subprojects {
 
             developers {
                 developer {
-                    id.set("pcfprio")
-                    name.set("pcfprio")
-                    url.set("https://github.com/pcfprio")
+                    id.set("jashanyng")
+                    name.set("Jashan Yang")
+                    email.set("jashanyng@gmail.com")
+                    url.set("https://github.com/jashanyng")
                 }
             }
 
             scm {
                 url.set(hiAndroidRepositoryUrl)
                 connection.set(
-                    "scm:git:git://github.com/pcfprio/" +
+                    "scm:git:git://github.com/jashanyng/" +
                         "HiAndroid.git",
                 )
                 developerConnection.set(
-                    "scm:git:ssh://git@github.com/pcfprio/" +
+                    "scm:git:ssh://git@github.com/jashanyng/" +
                         "HiAndroid.git",
                 )
             }

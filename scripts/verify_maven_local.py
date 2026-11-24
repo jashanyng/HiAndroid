@@ -4,9 +4,9 @@
 from pathlib import Path
 from xml.etree import ElementTree
 
-GROUP_ID = "com.pcfprio"
+GROUP_ID = "com.jashanyng"
 VERSION = "2.0.0"
-REPOSITORY = Path.home() / ".m2/repository/com/pcfprio"
+REPOSITORY = Path.home() / ".m2/repository/com/jashanyng"
 
 MODULES = {
     "base": ("jar", set()),

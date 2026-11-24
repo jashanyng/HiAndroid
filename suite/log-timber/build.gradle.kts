@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "com.pcfprio.suite.log.timber"
+    namespace = "com.jashanyng.suite.log.timber"
     compileSdk = 37
     defaultConfig {
         minSdk = 30

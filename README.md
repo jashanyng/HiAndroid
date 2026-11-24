@@ -19,28 +19,28 @@ verified for public publication.
 
 | Gradle module | Maven coordinate | Package | Purpose |
 | --- | --- | --- | --- |
-| `:base` | `com.pcfprio:base:2.0.0` | JAR | Pure Kotlin models and logging, analytics, social sharing contracts. |
-| `:core` | `com.pcfprio:core:2.0.0` | AAR | Lightweight Android platform utilities. |
-| `:nav` | `com.pcfprio:nav:2.0.0` | JAR | URL and URI navigation contracts. |
-| `:nav:compose` | `com.pcfprio:nav-compose:2.0.0` | AAR | Jetpack Navigation Compose adapter. |
-| `:nav:umeng-ulink` | `com.pcfprio:nav-umeng-ulink:2.0.0` | AAR | Optional Umeng U-Link adapter. |
-| `:net` | `com.pcfprio:net:2.0.0` | JAR | Network contracts and models. |
-| `:net:retrofit` | `com.pcfprio:net-retrofit:2.0.0` | JAR | Retrofit, OkHttp and Moshi adapter. |
-| `:store` | `com.pcfprio:store:2.0.0` | JAR | Persistence contracts and reusable cache composition. |
-| `:store:datastore` | `com.pcfprio:store-datastore:2.0.0` | AAR | DataStore preferences adapter. |
-| `:store:keystore` | `com.pcfprio:store-keystore:2.0.0` | AAR | Android Keystore secure string adapter. |
-| `:suite` | `com.pcfprio:suite:2.0.0` | AAR | Reusable Compose views. |
-| `:suite:coil` | `com.pcfprio:suite-coil:2.0.0` | AAR | Optional image viewer and Coil cache adapter. |
-| `:suite:media3` | `com.pcfprio:suite-media3:2.0.0` | AAR | Optional Media3 player view. |
-| `:suite:log-timber` | `com.pcfprio:suite-log-timber:2.0.0` | AAR | Optional Timber logger adapter: `TimberAppLogger` forwards complete `LogEntry` values; `LogEntryTree` receives them losslessly (attributes, tag, throwable) and synthesizes entries for direct Timber calls. Whether sensitive data is accepted is declared by the host via `supportsSensitiveData`. |
-| `:suite:aliyun-emas-core` | `com.pcfprio:suite-aliyun-emas-core:2.0.0` | AAR | Optional Alibaba Cloud EMAS adapter. |
-| `:suite:umeng-core` | `com.pcfprio:suite-umeng-core:2.0.0` | AAR | Optional Umeng runtime. |
-| `:suite:analytics-umeng` | `com.pcfprio:suite-analytics-umeng:2.0.0` | AAR | Optional Umeng analytics adapter. |
-| `:suite:performance-umeng` | `com.pcfprio:suite-performance-umeng:2.0.0` | AAR | Optional Umeng U-APM adapter. |
-| `:suite:socialsharing-umeng` | `com.pcfprio:suite-socialsharing-umeng:2.0.0` | AAR | Optional Umeng social sharing adapter. |
-| `:hiandroid` | `com.pcfprio:hiandroid:2.0.0` | AAR | Optional entry for the common modules and default adapters. |
-| `:github:model:core` | `com.pcfprio:github-model-core:2.0.0` | JAR | Shared GitHub models, independent of the base library. |
-| `:github:trending` | `com.pcfprio:github-trending:2.0.0` | JAR | GitHub Trending library, independent of the base library. |
+| `:base` | `com.jashanyng:base:2.0.0` | JAR | Pure Kotlin models and logging, analytics, social sharing contracts. |
+| `:core` | `com.jashanyng:core:2.0.0` | AAR | Lightweight Android platform utilities. |
+| `:nav` | `com.jashanyng:nav:2.0.0` | JAR | URL and URI navigation contracts. |
+| `:nav:compose` | `com.jashanyng:nav-compose:2.0.0` | AAR | Jetpack Navigation Compose adapter. |
+| `:nav:umeng-ulink` | `com.jashanyng:nav-umeng-ulink:2.0.0` | AAR | Optional Umeng U-Link adapter. |
+| `:net` | `com.jashanyng:net:2.0.0` | JAR | Network contracts and models. |
+| `:net:retrofit` | `com.jashanyng:net-retrofit:2.0.0` | JAR | Retrofit, OkHttp and Moshi adapter. |
+| `:store` | `com.jashanyng:store:2.0.0` | JAR | Persistence contracts and reusable cache composition. |
+| `:store:datastore` | `com.jashanyng:store-datastore:2.0.0` | AAR | DataStore preferences adapter. |
+| `:store:keystore` | `com.jashanyng:store-keystore:2.0.0` | AAR | Android Keystore secure string adapter. |
+| `:suite` | `com.jashanyng:suite:2.0.0` | AAR | Reusable Compose views. |
+| `:suite:coil` | `com.jashanyng:suite-coil:2.0.0` | AAR | Optional image viewer and Coil cache adapter. |
+| `:suite:media3` | `com.jashanyng:suite-media3:2.0.0` | AAR | Optional Media3 player view. |
+| `:suite:log-timber` | `com.jashanyng:suite-log-timber:2.0.0` | AAR | Optional Timber logger adapter: `TimberAppLogger` forwards complete `LogEntry` values; `LogEntryTree` receives them losslessly (attributes, tag, throwable) and synthesizes entries for direct Timber calls. Whether sensitive data is accepted is declared by the host via `supportsSensitiveData`. |
+| `:suite:aliyun-emas-core` | `com.jashanyng:suite-aliyun-emas-core:2.0.0` | AAR | Optional Alibaba Cloud EMAS adapter. |
+| `:suite:umeng-core` | `com.jashanyng:suite-umeng-core:2.0.0` | AAR | Optional Umeng runtime. |
+| `:suite:analytics-umeng` | `com.jashanyng:suite-analytics-umeng:2.0.0` | AAR | Optional Umeng analytics adapter. |
+| `:suite:performance-umeng` | `com.jashanyng:suite-performance-umeng:2.0.0` | AAR | Optional Umeng U-APM adapter. |
+| `:suite:socialsharing-umeng` | `com.jashanyng:suite-socialsharing-umeng:2.0.0` | AAR | Optional Umeng social sharing adapter. |
+| `:hiandroid` | `com.jashanyng:hiandroid:2.0.0` | AAR | Optional entry for the common modules and default adapters. |
+| `:github:model:core` | `com.jashanyng:github-model-core:2.0.0` | JAR | Shared GitHub models, independent of the base library. |
+| `:github:trending` | `com.jashanyng:github-trending:2.0.0` | JAR | GitHub Trending library, independent of the base library. |
 
 ### Module layering
 
@@ -69,7 +69,7 @@ framework-neutral Compose views stay in `:suite`. `:net` supplies the
 
 `:suite` publishes `suite_action_retry` (`Retry` / `重试`) and
 `suite_navigate_back_content_description` (`Navigate back` / `返回`) through
-`com.pcfprio.suite.R.string`. They are listed in
+`com.jashanyng.suite.R.string`. They are listed in
 `suite/src/main/res/values/public.xml`; other component strings stay internal.
 The web page's Back action retains its own description because it can navigate
 within browser history. Keep default and Chinese values together when changing
@@ -90,7 +90,7 @@ these resources.
 Clone the repository and run the complete verification suite:
 
 ```bash
-git clone https://github.com/pcfprio/HiAndroid.git
+git clone https://github.com/jashanyng/HiAndroid.git
 cd HiAndroid
 ./gradlew clean check
 ```
@@ -104,7 +104,7 @@ Publish all modules to Maven Local for local dependency testing:
 Published local artifacts are written below:
 
 ```text
-~/.m2/repository/com/pcfprio/
+~/.m2/repository/com/jashanyng/
 ```
 
 ## Consume published `1.0.0`
@@ -125,8 +125,8 @@ Example dependencies:
 
 ```kotlin
 dependencies {
-    implementation("com.pcfprio:suite:1.0.0")
-    implementation("com.pcfprio:github-trending:1.0.0")
+    implementation("com.jashanyng:suite:1.0.0")
+    implementation("com.jashanyng:github-trending:1.0.0")
 }
 ```
 
@@ -138,8 +138,8 @@ from the module table. A small application may choose the optional entry:
 
 ```kotlin
 dependencies {
-    implementation("com.pcfprio:hiandroid:2.0.0")
-    implementation("com.pcfprio:github-trending:2.0.0")
+    implementation("com.jashanyng:hiandroid:2.0.0")
+    implementation("com.jashanyng:github-trending:2.0.0")
 }
 ```
 
@@ -180,37 +180,37 @@ adjust the local path as needed:
 ```kotlin
 includeBuild("../HiAndroid") {
     dependencySubstitution {
-        substitute(module("com.pcfprio:base"))
+        substitute(module("com.jashanyng:base"))
             .using(project(":base"))
-        substitute(module("com.pcfprio:core"))
+        substitute(module("com.jashanyng:core"))
             .using(project(":core"))
-        substitute(module("com.pcfprio:nav"))
+        substitute(module("com.jashanyng:nav"))
             .using(project(":nav"))
-        substitute(module("com.pcfprio:nav-compose"))
+        substitute(module("com.jashanyng:nav-compose"))
             .using(project(":nav:compose"))
-        substitute(module("com.pcfprio:net"))
+        substitute(module("com.jashanyng:net"))
             .using(project(":net"))
-        substitute(module("com.pcfprio:net-retrofit"))
+        substitute(module("com.jashanyng:net-retrofit"))
             .using(project(":net:retrofit"))
-        substitute(module("com.pcfprio:store"))
+        substitute(module("com.jashanyng:store"))
             .using(project(":store"))
-        substitute(module("com.pcfprio:store-datastore"))
+        substitute(module("com.jashanyng:store-datastore"))
             .using(project(":store:datastore"))
-        substitute(module("com.pcfprio:store-keystore"))
+        substitute(module("com.jashanyng:store-keystore"))
             .using(project(":store:keystore"))
-        substitute(module("com.pcfprio:suite"))
+        substitute(module("com.jashanyng:suite"))
             .using(project(":suite"))
-        substitute(module("com.pcfprio:suite-coil"))
+        substitute(module("com.jashanyng:suite-coil"))
             .using(project(":suite:coil"))
-        substitute(module("com.pcfprio:suite-media3"))
+        substitute(module("com.jashanyng:suite-media3"))
             .using(project(":suite:media3"))
-        substitute(module("com.pcfprio:suite-log-timber"))
+        substitute(module("com.jashanyng:suite-log-timber"))
             .using(project(":suite:log-timber"))
-        substitute(module("com.pcfprio:hiandroid"))
+        substitute(module("com.jashanyng:hiandroid"))
             .using(project(":hiandroid"))
-        substitute(module("com.pcfprio:github-model-core"))
+        substitute(module("com.jashanyng:github-model-core"))
             .using(project(":github:model:core"))
-        substitute(module("com.pcfprio:github-trending"))
+        substitute(module("com.jashanyng:github-trending"))
             .using(project(":github:trending"))
     }
 }
@@ -220,7 +220,7 @@ The consuming module continues to use normal Maven coordinates:
 
 ```kotlin
 dependencies {
-    implementation("com.pcfprio:suite:2.0.0")
+    implementation("com.jashanyng:suite:2.0.0")
 }
 ```
 
@@ -244,13 +244,13 @@ The project follows semantic versioning:
 
 | `1.0.0` | `2.0.0` |
 | --- | --- |
-| `com.pcfprio.core.cache.*` | `com.pcfprio.store.cache.*` in `store` |
-| `com.pcfprio.core.security.SecureStringStore` | `com.pcfprio.store.security.SecureStringStore` in `store` |
-| `com.pcfprio.core.security.AndroidKeystoreSecureStringStore` | `com.pcfprio.store.security.AndroidKeystoreSecureStringStore` in `store-keystore` |
-| `com.pcfprio.base.share.Share*` | `com.pcfprio.base.socialsharing.SocialSharing*` |
-| `suite-nav-compose` | `nav-compose` and package `com.pcfprio.nav.compose` |
-| `suite-nav-umeng-ulink` | `nav-umeng-ulink` and package `com.pcfprio.nav.umeng.ulink` |
-| `suite-share-umeng` | `suite-socialsharing-umeng` and package `com.pcfprio.suite.socialsharing.umeng` |
+| `com.jashanyng.core.cache.*` | `com.jashanyng.store.cache.*` in `store` |
+| `com.jashanyng.core.security.SecureStringStore` | `com.jashanyng.store.security.SecureStringStore` in `store` |
+| `com.jashanyng.core.security.AndroidKeystoreSecureStringStore` | `com.jashanyng.store.security.AndroidKeystoreSecureStringStore` in `store-keystore` |
+| `com.jashanyng.base.share.Share*` | `com.jashanyng.base.socialsharing.SocialSharing*` |
+| `suite-nav-compose` | `nav-compose` and package `com.jashanyng.nav.compose` |
+| `suite-nav-umeng-ulink` | `nav-umeng-ulink` and package `com.jashanyng.nav.umeng.ulink` |
+| `suite-share-umeng` | `suite-socialsharing-umeng` and package `com.jashanyng.suite.socialsharing.umeng` |
 | `SuiteImageViewer`, `CoilAppCacheStore` in `suite` | same Kotlin names in `suite-coil` |
 | `SuiteMediaPlayerPage`, `SuiteMediaRequest` in `suite` | same Kotlin names in `suite-media3` |
 | `TimberAppLogger`, `TimberInitializer` in `suite` | same Kotlin names in `suite-log-timber` |
@@ -267,7 +267,7 @@ HiAndroid is licensed under the
 ## Optional U-Share WeChat platform
 
 `:suite:socialsharing-umeng-wechat` is consumed through the parent composite
-build as `com.pcfprio:suite-socialsharing-umeng-wechat`; it is not in the
+build as `com.jashanyng:suite-socialsharing-umeng-wechat`; it is not in the
 public publication whitelist.
 It adds U-Share 7.3.7's WeChat handler and WeChat OpenSDK 6.8.24 without forcing
 those dependencies on SMS/email-only hosts. The host provides its public AppID,

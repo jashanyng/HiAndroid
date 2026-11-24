@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.pcfprio.nav.compose"
+    namespace = "com.jashanyng.nav.compose"
     compileSdk = 37
 
     defaultConfig {

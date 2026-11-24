@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "com.pcfprio.core"
+    namespace = "com.jashanyng.core"
     compileSdk = 37
 
     defaultConfig {

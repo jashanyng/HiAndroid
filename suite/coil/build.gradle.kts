@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.pcfprio.suite.coil"
+    namespace = "com.jashanyng.suite.coil"
     compileSdk = 37
     defaultConfig {
         minSdk = 30

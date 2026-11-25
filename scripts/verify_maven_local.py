@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """校验 HiAndroid 发布到 Maven Local 的构件和内部依赖。"""
 
+import argparse
 from pathlib import Path
 import re
 import sys
@@ -20,6 +21,11 @@ VERIFY_VERSION_PATTERN = re.compile(
     r'^(?P<prefix>\s*VERSION\s*=\s*")(?P<version>[^"\r\n]+)(?P<suffix>"\s*)$',
     re.MULTILINE,
 )
+UNRELEASED_HEADING_PATTERN = re.compile(
+    r"^## \[Unreleased\][ \t]*$",
+    re.MULTILINE,
+)
+FENCE_OPEN_PATTERN = re.compile(r"^[ \t]{0,3}(`{3,}|~{3,})")
 
 MODULES = {
     "base": ("jar", set()),
@@ -148,8 +154,69 @@ def read_verify_script_version(verify_script_path):
     )
 
 
+def mask_fenced_code_blocks(text):
+    """遮蔽 Markdown 围栏代码块内容，保留字符长度与换行符位置不变。"""
+    normalized = text.replace("\r\n", "\n")
+    fence_char = None
+    fence_length = 0
+    masked_lines = []
+
+    for body in normalized.split("\n"):
+        if fence_char is None:
+            open_match = FENCE_OPEN_PATTERN.match(body)
+            if open_match:
+                fence = open_match.group(1)
+                fence_char = fence[0]
+                fence_length = len(fence)
+                masked_lines.append(" " * len(body))
+            else:
+                masked_lines.append(body)
+        else:
+            masked_lines.append(" " * len(body))
+            close_pattern = re.compile(
+                rf"^[ \t]{{0,3}}{re.escape(fence_char)}{{{fence_length},}}[ \t]*$"
+            )
+            if close_pattern.match(body):
+                fence_char = None
+                fence_length = 0
+
+    return "\n".join(masked_lines)
+
+
+def _validate_governance_docs(root, version):
+    """校验根 CHANGELOG.md 与 docs/compatibility.md 的存在性与结构完整性。"""
+    changelog_path = root / "CHANGELOG.md"
+    if not changelog_path.is_file():
+        raise ValueError(f"缺少根变更日志：{changelog_path}")
+
+    changelog_content = changelog_path.read_text(encoding="utf-8").replace("\r\n", "\n")
+    masked_changelog = mask_fenced_code_blocks(changelog_content)
+    unreleased_matches = UNRELEASED_HEADING_PATTERN.findall(masked_changelog)
+    if len(unreleased_matches) != 1:
+        raise ValueError(
+            f"{changelog_path} 中必须恰好包含一处 `## [Unreleased]` 节，"
+            f"实际匹配 {len(unreleased_matches)} 处"
+        )
+
+    version_heading_pattern = re.compile(
+        rf"^## \[{re.escape(version)}\](?: - \d{{4}}-\d{{2}}-\d{{2}})?[ \t]*$",
+        re.MULTILINE,
+    )
+    if not version_heading_pattern.search(masked_changelog):
+        raise ValueError(
+            f"{changelog_path} 缺少当前版本节 `## [{version}]`"
+        )
+
+    compatibility_path = root / "docs" / "compatibility.md"
+    if not compatibility_path.is_file():
+        raise ValueError(f"缺少兼容性与迁移文档：{compatibility_path}")
+
+    if not compatibility_path.read_text(encoding="utf-8").strip():
+        raise ValueError(f"兼容性与迁移文档不能为空：{compatibility_path}")
+
+
 def validate_version_sync(repo_root=REPO_ROOT):
-    """校验 build.gradle.kts 与 scripts/verify_maven_local.py 的版本均为裸格式且一致。"""
+    """校验版本定义一致性及 CHANGELOG.md / docs/compatibility.md 治理门禁。"""
     root = Path(repo_root)
     gradle_version = read_gradle_version(root / "build.gradle.kts")
     verify_version = read_verify_script_version(
@@ -162,6 +229,7 @@ def validate_version_sync(repo_root=REPO_ROOT):
             f"版本不一致：build.gradle.kts 为 {gradle_version!r}，"
             f"scripts/verify_maven_local.py 为 {verify_version!r}"
         )
+    _validate_governance_docs(root, gradle_version)
     return gradle_version
 
 
@@ -263,8 +331,22 @@ def verify_module(artifact_id, main_extension, expected_dependencies):
     )
 
 
-def main():
+def parse_args(argv=None):
+    """解析命令行参数。"""
+    parser = argparse.ArgumentParser(
+        description="校验 HiAndroid 版本同步、治理文档与 Maven Local 发布构件。",
+    )
+    parser.add_argument(
+        "--version-sync-only",
+        action="store_true",
+        help="仅校验版本同步与治理文档（不检查 Maven Local 构件）。",
+    )
+    return parser.parse_args(argv)
+
+
+def main(argv=None):
     """校验版本门禁及全部 Maven Local 发布模块。"""
+    args = parse_args(argv)
     try:
         validated_version = validate_version_sync(REPO_ROOT)
         validate_bare_version(VERSION)
@@ -272,9 +354,13 @@ def main():
             raise ValueError(
                 f"运行时 VERSION={VERSION!r} 与文件校验结果 {validated_version!r} 不一致"
             )
-    except ValueError as error:
+    except (FileNotFoundError, ValueError) as error:
         print(f"版本校验失败：{error}", file=sys.stderr)
         sys.exit(1)
+
+    if args.version_sync_only:
+        print(f"版本同步与治理文档校验通过（{validated_version}）")
+        return
 
     for artifact_id, configuration in MODULES.items():
         main_extension, expected_dependencies = configuration

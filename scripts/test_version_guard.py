@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """HiAndroid 版本格式校验、一致性门禁与改版脚本的单元测试。"""
 
+from datetime import date
+import os
 from pathlib import Path
 import re
 import subprocess
@@ -20,10 +22,14 @@ def write_fixture_repo(
     root: Path,
     gradle_version: str,
     verify_version: str,
+    changelog_content: str | None = None,
+    compatibility_content: str | None = None,
 ) -> Path:
     """在临时目录构造用于版本门禁测试的最小仓库结构。"""
     scripts_dir = root / "scripts"
     scripts_dir.mkdir(parents=True, exist_ok=True)
+    docs_dir = root / "docs"
+    docs_dir.mkdir(parents=True, exist_ok=True)
     (root / "build.gradle.kts").write_text(
         f'val hiAndroidGroupId = "com.jashanyng"\n'
         f'val hiAndroidVersion = "{gradle_version}"\n',
@@ -41,6 +47,28 @@ def write_fixture_repo(
     )
     (scripts_dir / "verify_maven_local.py").write_text(
         patched_verify,
+        encoding="utf-8",
+    )
+    default_changelog = (
+        "# 变更日志（Changelog）\n\n"
+        "## [Unreleased]\n\n"
+        f"## [{gradle_version}]\n\n"
+        "### 新增\n\n"
+        "- 初始基线。\n"
+    )
+    (root / "CHANGELOG.md").write_text(
+        default_changelog if changelog_content is None else changelog_content,
+        encoding="utf-8",
+    )
+    default_compatibility = (
+        "# 兼容性与迁移指南\n\n"
+        "## 环境与依赖兼容矩阵\n\n"
+        "- JDK 21\n"
+    )
+    (docs_dir / "compatibility.md").write_text(
+        default_compatibility
+        if compatibility_content is None
+        else compatibility_content,
         encoding="utf-8",
     )
     return root
@@ -123,6 +151,189 @@ class VersionSyncCheckTest(unittest.TestCase):
     def test_current_repository_versions_are_in_sync(self) -> None:
         version = verify_maven_local.validate_version_sync(REPO_ROOT)
         verify_maven_local.validate_bare_version(version)
+
+    def test_accepts_current_version_heading_with_release_date(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = write_fixture_repo(
+                Path(tmp),
+                "0.0.1",
+                "0.0.1",
+                changelog_content=(
+                    "# 变更日志（Changelog）\n\n"
+                    "## [Unreleased]\n\n"
+                    "## [0.0.1] - 2026-11-25\n\n"
+                    "- 初始版本。\n"
+                ),
+            )
+            self.assertEqual(
+                verify_maven_local.validate_version_sync(root),
+                "0.0.1",
+            )
+
+    def test_rejects_missing_changelog(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = write_fixture_repo(Path(tmp), "0.0.1", "0.0.1")
+            (root / "CHANGELOG.md").unlink()
+            with self.assertRaises(ValueError):
+                verify_maven_local.validate_version_sync(root)
+
+    def test_rejects_missing_or_malformed_unreleased_heading(self) -> None:
+        invalid_changelogs = [
+            "# 变更日志\n\n## [0.0.1]\n\n- 初始版本。\n",
+            "# 变更日志\n\n## Unreleased\n\n## [0.0.1]\n",
+            "# 变更日志\n\n### [Unreleased]\n\n## [0.0.1]\n",
+            "# 变更日志\n\n## [Unreleased] 待发布\n\n## [0.0.1]\n",
+        ]
+        for changelog in invalid_changelogs:
+            with self.subTest(changelog=changelog):
+                with tempfile.TemporaryDirectory() as tmp:
+                    root = write_fixture_repo(
+                        Path(tmp),
+                        "0.0.1",
+                        "0.0.1",
+                        changelog_content=changelog,
+                    )
+                    with self.assertRaises(ValueError):
+                        verify_maven_local.validate_version_sync(root)
+
+    def test_rejects_missing_or_malformed_current_version_heading(self) -> None:
+        invalid_changelogs = [
+            "# 变更日志\n\n## [Unreleased]\n\n- 尚未归档。\n",
+            "# 变更日志\n\n## [Unreleased]\n\n## [0.0.2]\n",
+            "# 变更日志\n\n## [Unreleased]\n\n## [0.0.1] extra\n",
+            "# 变更日志\n\n## [Unreleased]\n\n## [0.0.1] - 2026/11/25\n",
+        ]
+        for changelog in invalid_changelogs:
+            with self.subTest(changelog=changelog):
+                with tempfile.TemporaryDirectory() as tmp:
+                    root = write_fixture_repo(
+                        Path(tmp),
+                        "0.0.1",
+                        "0.0.1",
+                        changelog_content=changelog,
+                    )
+                    with self.assertRaises(ValueError):
+                        verify_maven_local.validate_version_sync(root)
+
+    def test_rejects_missing_or_empty_compatibility_doc(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = write_fixture_repo(Path(tmp), "0.0.1", "0.0.1")
+            (root / "docs" / "compatibility.md").unlink()
+            with self.assertRaises(ValueError):
+                verify_maven_local.validate_version_sync(root)
+
+        for empty_body in ("", "   \n\t\n"):
+            with self.subTest(empty_body=empty_body):
+                with tempfile.TemporaryDirectory() as tmp:
+                    root = write_fixture_repo(
+                        Path(tmp),
+                        "0.0.1",
+                        "0.0.1",
+                        compatibility_content=empty_body,
+                    )
+                    with self.assertRaises(ValueError):
+                        verify_maven_local.validate_version_sync(root)
+
+    def test_verify_maven_local_cli_fails_when_governance_docs_invalid(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = write_fixture_repo(Path(tmp), "0.0.1", "0.0.1")
+            (root / "CHANGELOG.md").unlink()
+            result = subprocess.run(
+                [sys.executable, str(root / "scripts" / "verify_maven_local.py")],
+                cwd=root,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("版本校验失败", result.stderr)
+
+    def test_ignores_headings_inside_fenced_code_blocks(self) -> None:
+        changelog = (
+            "# 变更日志（Changelog）\n\n"
+            "## [Unreleased]\n\n"
+            "### 示例说明\n\n"
+            "```markdown\n"
+            "## [Unreleased]\n\n"
+            "## [0.0.2]\n"
+            "```\n\n"
+            "~~~~markdown\n"
+            "## [Unreleased]\n"
+            "```\n"
+            "## [0.0.2]\n"
+            "~~~~\n\n"
+            "## [0.0.1]\n\n"
+            "- 初始基线。\n"
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            root = write_fixture_repo(
+                Path(tmp),
+                "0.0.1",
+                "0.0.1",
+                changelog_content=changelog,
+            )
+            self.assertEqual(
+                verify_maven_local.validate_version_sync(root),
+                "0.0.1",
+            )
+            masked = verify_maven_local.mask_fenced_code_blocks(changelog)
+            self.assertEqual(len(masked), len(changelog))
+            self.assertEqual(
+                [i for i, ch in enumerate(masked) if ch == "\n"],
+                [i for i, ch in enumerate(changelog) if ch == "\n"],
+            )
+
+    def test_verify_maven_local_version_sync_only_cli_without_m2(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp, tempfile.TemporaryDirectory() as empty_home:
+            root = write_fixture_repo(Path(tmp), "0.0.1", "0.0.1")
+            env = {**os.environ, "HOME": empty_home}
+            ok_result = subprocess.run(
+                [
+                    sys.executable,
+                    str(root / "scripts" / "verify_maven_local.py"),
+                    "--version-sync-only",
+                ],
+                cwd=root,
+                env=env,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            self.assertEqual(ok_result.returncode, 0, msg=ok_result.stderr)
+
+            (root / "docs" / "compatibility.md").unlink()
+            missing_doc_result = subprocess.run(
+                [
+                    sys.executable,
+                    str(root / "scripts" / "verify_maven_local.py"),
+                    "--version-sync-only",
+                ],
+                cwd=root,
+                env=env,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            self.assertNotEqual(missing_doc_result.returncode, 0)
+            self.assertIn("版本校验失败", missing_doc_result.stderr)
+
+        with tempfile.TemporaryDirectory() as tmp, tempfile.TemporaryDirectory() as empty_home:
+            root = write_fixture_repo(Path(tmp), "0.0.1", "0.0.2")
+            env = {**os.environ, "HOME": empty_home}
+            mismatch_result = subprocess.run(
+                [
+                    sys.executable,
+                    str(root / "scripts" / "verify_maven_local.py"),
+                    "--version-sync-only",
+                ],
+                cwd=root,
+                env=env,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            self.assertNotEqual(mismatch_result.returncode, 0)
+            self.assertIn("版本校验失败", mismatch_result.stderr)
 
 
 class BumpVersionCliTest(unittest.TestCase):
@@ -223,6 +434,170 @@ class BumpVersionCliTest(unittest.TestCase):
             root = write_fixture_repo(Path(tmp), "0.0.1", "0.0.2")
             result = self._run_bump("0.0.3", "--root", str(root))
             self.assertNotEqual(result.returncode, 0)
+
+    def test_archives_unreleased_changelog_body_on_bump(self) -> None:
+        initial_changelog = (
+            "# 变更日志（Changelog）\n\n"
+            "记录所有公开可见版本变更。\n\n"
+            "## [Unreleased]\n\n"
+            "### 新增\n\n"
+            "- 新增流式解析扩展能力。\n\n"
+            "### 修复\n\n"
+            "- 修复边界解析异常。\n\n"
+            "## [0.0.1]\n\n"
+            "### 新增\n\n"
+            "- 初始基线。\n"
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            root = write_fixture_repo(
+                Path(tmp),
+                "0.0.1",
+                "0.0.1",
+                changelog_content=initial_changelog,
+            )
+            result = self._run_bump("0.0.2", "--root", str(root))
+            self.assertEqual(result.returncode, 0, msg=result.stderr)
+            self.assertEqual(
+                verify_maven_local.validate_version_sync(root),
+                "0.0.2",
+            )
+            today_str = date.today().isoformat()
+            updated_changelog = (root / "CHANGELOG.md").read_text(encoding="utf-8")
+            expected_changelog = (
+                "# 变更日志（Changelog）\n\n"
+                "记录所有公开可见版本变更。\n\n"
+                "## [Unreleased]\n\n"
+                f"## [0.0.2] - {today_str}\n\n"
+                "### 新增\n\n"
+                "- 新增流式解析扩展能力。\n\n"
+                "### 修复\n\n"
+                "- 修复边界解析异常。\n\n"
+                "## [0.0.1]\n\n"
+                "### 新增\n\n"
+                "- 初始基线。\n"
+            )
+            self.assertEqual(updated_changelog, expected_changelog)
+
+    def test_fills_placeholder_when_unreleased_changelog_is_empty(self) -> None:
+        initial_changelog = (
+            "# 变更日志（Changelog）\n\n"
+            "## [Unreleased]\n\n"
+            "   \n"
+            "## [0.0.1]\n\n"
+            "### 新增\n\n"
+            "- 初始基线。\n"
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            root = write_fixture_repo(
+                Path(tmp),
+                "0.0.1",
+                "0.0.1",
+                changelog_content=initial_changelog,
+            )
+            result = self._run_bump("0.0.2", "--root", str(root))
+            self.assertEqual(result.returncode, 0, msg=result.stderr)
+            self.assertEqual(
+                verify_maven_local.validate_version_sync(root),
+                "0.0.2",
+            )
+            today_str = date.today().isoformat()
+            updated_changelog = (root / "CHANGELOG.md").read_text(encoding="utf-8")
+            expected_changelog = (
+                "# 变更日志（Changelog）\n\n"
+                "## [Unreleased]\n\n"
+                f"## [0.0.2] - {today_str}\n\n"
+                "- 版本号对齐（无行为变更）。\n\n"
+                "## [0.0.1]\n\n"
+                "### 新增\n\n"
+                "- 初始基线。\n"
+            )
+            self.assertEqual(updated_changelog, expected_changelog)
+
+    def test_bump_keeps_all_files_unchanged_when_validation_fails(self) -> None:
+        broken_changelog = (
+            "# 变更日志（Changelog）\n\n"
+            "## [Unreleased]\n\n"
+            "## [Unreleased]\n\n"
+            "## [0.0.1]\n"
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            root = write_fixture_repo(
+                Path(tmp),
+                "0.0.1",
+                "0.0.1",
+                changelog_content=broken_changelog,
+            )
+            gradle_before = (root / "build.gradle.kts").read_text(encoding="utf-8")
+            verify_before = (root / "scripts" / "verify_maven_local.py").read_text(
+                encoding="utf-8"
+            )
+            result = self._run_bump("0.0.2", "--root", str(root))
+            self.assertNotEqual(result.returncode, 0)
+            self.assertEqual(
+                (root / "build.gradle.kts").read_text(encoding="utf-8"),
+                gradle_before,
+            )
+            self.assertEqual(
+                (root / "scripts" / "verify_maven_local.py").read_text(
+                    encoding="utf-8"
+                ),
+                verify_before,
+            )
+            self.assertEqual(
+                (root / "CHANGELOG.md").read_text(encoding="utf-8"),
+                broken_changelog,
+            )
+
+    def test_bump_preserves_fenced_code_blocks_containing_headings(self) -> None:
+        initial_changelog = (
+            "# 变更日志（Changelog）\n\n"
+            "## [Unreleased]\n\n"
+            "### 新增\n\n"
+            "- 新增围栏代码块示例：\n\n"
+            "```markdown\n"
+            "## [Unreleased]\n\n"
+            "## [0.0.2]\n"
+            "```\n\n"
+            "## [0.0.1]\n\n"
+            "### 示例归档\n\n"
+            "~~~markdown\n"
+            "## [0.0.2]\n"
+            "~~~\n\n"
+            "- 初始基线。\n"
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            root = write_fixture_repo(
+                Path(tmp),
+                "0.0.1",
+                "0.0.1",
+                changelog_content=initial_changelog,
+            )
+            result = self._run_bump("0.0.2", "--root", str(root))
+            self.assertEqual(result.returncode, 0, msg=result.stderr)
+            self.assertEqual(
+                verify_maven_local.validate_version_sync(root),
+                "0.0.2",
+            )
+            today_str = date.today().isoformat()
+            updated_changelog = (root / "CHANGELOG.md").read_text(encoding="utf-8")
+            expected_changelog = (
+                "# 变更日志（Changelog）\n\n"
+                "## [Unreleased]\n\n"
+                f"## [0.0.2] - {today_str}\n\n"
+                "### 新增\n\n"
+                "- 新增围栏代码块示例：\n\n"
+                "```markdown\n"
+                "## [Unreleased]\n\n"
+                "## [0.0.2]\n"
+                "```\n\n"
+                "## [0.0.1]\n\n"
+                "### 示例归档\n\n"
+                "~~~markdown\n"
+                "## [0.0.2]\n"
+                "~~~\n\n"
+                "- 初始基线。\n"
+            )
+            self.assertEqual(updated_changelog, expected_changelog)
 
 
 if __name__ == "__main__":

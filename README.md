@@ -58,15 +58,21 @@ HiAndroid 效率库是与具体业务无关、可独立发布的 Kotlin/Android 
 - **Android SDK / 字节码基线**：Android SDK `37`、`minSdk = 30`，Java 与 Kotlin JVM 字节码目标均为 `11`
 
 ```bash
-# 运行全量检查（单元测试、Android Lint 等）
+# 运行全量检查（单元测试、Android Lint 及根版本与治理文档门禁 :verifyVersionGovernance / :testVersionGuard）
 ./gradlew clean check
+
+# 也可独立运行 Python 治理门禁单测或无构件版本同步校验
+python3 -m unittest discover -s scripts -p 'test_*.py'
+python3 scripts/verify_maven_local.py --version-sync-only
 
 # 发布白名单内全部 22 个模块至本地 Maven（~/.m2/repository/com/jashanyng/）
 ./gradlew publishToMavenLocal
 
-# 校验 Maven Local 构件文件、坐标与内部传递依赖
+# 校验版本门禁、文档完整性及 Maven Local 构件文件、坐标与内部传递依赖
 python3 scripts/verify_maven_local.py
 ```
+
+完整的环境基线与核心依赖兼容矩阵见 [`docs/compatibility.md`](docs/compatibility.md)。
 
 ## 消费接入方式
 
@@ -147,6 +153,8 @@ dependencies {
 
 ## 文档与许可证
 
+- 变更日志（Release Notes 唯一事实源）：[`CHANGELOG.md`](CHANGELOG.md)
+- 兼容性矩阵、版本契约与迁移指南：[`docs/compatibility.md`](docs/compatibility.md)
 - 智能体协作与演进规则：[`AGENTS.md`](AGENTS.md)
 - 文档索引：[`docs/README.md`](docs/README.md)
 - 开源许可证：[Apache License 2.0](LICENSE)

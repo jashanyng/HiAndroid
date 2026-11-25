@@ -516,3 +516,29 @@ subprojects {
         }
     }
 }
+
+val verifyVersionGovernance = tasks.register<Exec>("verifyVersionGovernance") {
+    group = "verification"
+    description = "Verifies version synchronization and governance docs."
+    workingDir = projectDir
+    commandLine("python3", "scripts/verify_maven_local.py", "--version-sync-only")
+}
+
+val testVersionGuard = tasks.register<Exec>("testVersionGuard") {
+    group = "verification"
+    description = "Runs Python unit tests for version governance scripts."
+    workingDir = projectDir
+    commandLine("python3", "-m", "unittest", "discover", "-s", "scripts", "-p", "test_*.py")
+}
+
+if ("check" in tasks.names) {
+    tasks.named("check") {
+        dependsOn(verifyVersionGovernance, testVersionGuard)
+    }
+} else {
+    tasks.register("check") {
+        group = "verification"
+        description = "Runs root governance checks."
+        dependsOn(verifyVersionGovernance, testVersionGuard)
+    }
+}

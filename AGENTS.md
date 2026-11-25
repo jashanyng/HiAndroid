@@ -16,15 +16,17 @@ HiAndroid（专名“HiAndroid 效率库”，规则与文档叙述使用该专�
 ## 演进阶段与版本治理
 
 - **当前阶段与基线**：当前处于**制作期**，未发布版本基线为无 `v` 前缀裸格式 `0.0.1`（日常提交不打标签、不发 Maven Central，全部公开模块统一版本）。
-- **版本更新门禁**：版本号调整统一执行 `python3 scripts/bump_version.py <x.y.z>`；智能体仅允许递增 `z`，切换演进阶段或修改 `x`/`y`（以及打正式标签或发布 Maven Central）须获维护者明确同意并显式传入 `--allow-xy-bump`。
+- **变更日志同步**：修改公开 API、模块结构、公开坐标、构建产物或对外行为契约时，**必须**同步更新根目录 [`CHANGELOG.md`](CHANGELOG.md) 的 `## [Unreleased]` 节。
+- **兼容性文档同步**：修改 JDK、Gradle、Kotlin、AGP、Android SDK、`minSdk`、JVM target、核心依赖基线、消费接入方式或引入破坏性变更时，**必须**同步更新 [`docs/compatibility.md`](docs/compatibility.md) 与根 [`README.md`](README.md)。
+- **版本更新门禁**：版本号调整统一执行 `python3 scripts/bump_version.py <x.y.z>`（自动同步更新 `build.gradle.kts`、`scripts/verify_maven_local.py`，并将根 `CHANGELOG.md` 的 `## [Unreleased]` 自动归档至 `## [<x.y.z>] - YYYY-MM-DD`）；智能体仅允许递增 `z`，切换演进阶段或修改 `x`/`y`（以及打正式标签或发布 Maven Central）须获维护者明确同意并显式传入 `--allow-xy-bump`。
 - **完整规则指针**：调整家族或子模块结构、跨项目沉淀通用能力、评估维护期新增功能或切换版本批次前，先读取 [`../tech-specs/common/adoption.md#4-效率库准入规则与两阶段门禁`](../tech-specs/common/adoption.md#4-效率库准入规则与两阶段门禁)（本机无同级目录时回退读取 GitHub `jashanyng/tech-specs` 同路径；与消费项目两阶段依赖门禁正交）。
 
 ## 发布与验证
 
 - 新纳入通用模块的主流第三方库在实施时核对最新稳定版并精确锁定，不使用动态版本；厂商 SDK 按其独立接入约束核验。遇到 Kotlin、AGP、`minSdk` 或消费者不兼容时先解决冲突，不静默降级。
-- 已发布版本号不可覆盖，改动发布新版本号。
+- 已发布版本号不可覆盖，改动发布新版本号；不得略过 `CHANGELOG.md` 与 `docs/compatibility.md` 同步检查。
 - 日志契约只提供与渠道、环境无关的机制。是否接收凭据与原始正文由宿主通过 `LogProvider.supportsSensitiveData` 等参数显式声明并自负其责，默认不接收；本库不内置渠道、环境或加密策略。
-- 修改模块或依赖后运行 `./gradlew check`、`./gradlew publishToMavenLocal` 和 `python3 scripts/verify_maven_local.py`，并从独立 Gradle 消费工程核对 POM、Module Metadata 与传递依赖。
+- 修改模块、依赖或治理脚本后运行 `./gradlew check`（已内置 `:verifyVersionGovernance` 与 `:testVersionGuard` 根版本及治理文档门禁）、`./gradlew publishToMavenLocal` 和 `python3 scripts/verify_maven_local.py`（校验版本同步、`CHANGELOG.md` / `docs/compatibility.md` 与 Maven Local 全量构件及内部依赖），也可单独执行 `python3 -m unittest discover -s scripts -p 'test_*.py'` 或 `python3 scripts/verify_maven_local.py --version-sync-only`，并从独立 Gradle 消费工程核对 POM、Module Metadata 与传递依赖。
 - `:hiandroid` 是可选入口，多模块消费项目仍按各自编译边界选择最小子库。厂商 SDK 由宿主在隐私授权后显式初始化。
 
 ## 消费项目的同级源码依赖

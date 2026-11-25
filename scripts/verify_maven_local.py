@@ -5,7 +5,7 @@ from pathlib import Path
 from xml.etree import ElementTree
 
 GROUP_ID = "com.jashanyng"
-VERSION = "2.0.0"
+VERSION = "0.0.1"
 REPOSITORY = Path.home() / ".m2/repository/com/jashanyng"
 
 MODULES = {
